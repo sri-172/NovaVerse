@@ -1,48 +1,45 @@
-import type { MLCEngine } from '@mlc-ai/web-llm'
+import type { TextGenerationPipeline } from '@huggingface/transformers'
 
-// NOVAverse runs its model inside the browser. No Ollama, local server, or API key.
-const DEFAULT_MODEL = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC'
-let enginePromise: Promise<MLCEngine> | null = null
+// CPU/WASM browser inference. This path does not require WebGPU.
+const MODEL_ID = 'onnx-community/SmolLM2-135M-Instruct-ONNX'
+let generatorPromise: Promise<TextGenerationPipeline> | null = null
 
 export async function checkLocalAI(): Promise<boolean> {
-  try {
-    if (!('gpu' in navigator)) return false
-    const gpu = (navigator as Navigator & { gpu?: { requestAdapter: () => Promise<unknown> } }).gpu
-    if (!gpu) return false
-    return Boolean(await gpu.requestAdapter())
-  } catch {
-    return false
-  }
+  return typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator.onLine
 }
 
-async function getEngine(model = DEFAULT_MODEL): Promise<MLCEngine> {
-  if (!enginePromise) {
-    enginePromise = import('@mlc-ai/web-llm').then(({ CreateMLCEngine }) =>
-      CreateMLCEngine(model, {
-        initProgressCallback: (progress) => {
+async function getGenerator(): Promise<TextGenerationPipeline> {
+  if (!generatorPromise) {
+    generatorPromise = import('@huggingface/transformers').then(async ({ pipeline, env }) => {
+      env.allowLocalModels = false
+      return await pipeline('text-generation', MODEL_ID, {
+        dtype: 'q4',
+        progress_callback: (progress: unknown) => {
           window.dispatchEvent(new CustomEvent('novaverse-ai-progress', { detail: progress }))
         },
-      }),
-    ).catch((error) => {
-      enginePromise = null
+      }) as TextGenerationPipeline
+    }).catch((error) => {
+      generatorPromise = null
       throw error
     })
   }
-  return enginePromise
+  return generatorPromise
 }
 
-export async function askLocalAI(message: string, model = DEFAULT_MODEL): Promise<string> {
-  if (!(await checkLocalAI())) {
-    throw new Error('This browser or device does not support WebGPU. Please use an up-to-date Chrome or Edge browser with graphics acceleration enabled.')
-  }
-  const engine = await getEngine(model)
-  const result = await engine.chat.completions.create({
-    messages: [
-      { role: 'system', content: 'You are NOVA AI, a helpful educational assistant. Explain clearly, accurately, and step by step. Support English and Telugu when asked. If uncertain, say so.' },
-      { role: 'user', content: message },
-    ],
+export async function askLocalAI(message: string): Promise<string> {
+  if (!navigator.onLine) throw new Error('Connect to the internet for the first model download, then try again.')
+  const generator = await getGenerator()
+  const messages = [
+    { role: 'system' as const, content: 'You are NOVA AI, a friendly educational assistant. Explain in clear, simple steps. Answer briefly and accurately. If the user asks in Telugu, reply in Telugu. If you do not know, say so.' },
+    { role: 'user' as const, content: message },
+  ]
+  const output = await generator(messages, {
+    max_new_tokens: 220,
     temperature: 0.7,
-    max_tokens: 700,
-  })
-  return result.choices[0]?.message.content?.toString() || 'I could not generate a response. Please try again.'
+    do_sample: true,
+  }) as Array<{ generated_text: string | Array<{ role: string; content: string }> }>
+  const generated = output[0]?.generated_text
+  if (Array.isArray(generated)) return generated.at(-1)?.content?.trim() || 'Please try asking in a different way.'
+  if (typeof generated === 'string') return generated.trim()
+  return 'I could not generate a response. Please try again.'
 }
