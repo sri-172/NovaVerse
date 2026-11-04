@@ -26,7 +26,7 @@ async function getGenerator(): Promise<TextGenerationPipeline> {
   return generatorPromise
 }
 
-export async function askLocalAI(message: string): Promise<string> {
+export async function askLocalAI(message: string, _model?: string): Promise<string> {
   if (!navigator.onLine) throw new Error('Connect to the internet for the first model download, then try again.')
   const generator = await getGenerator()
   const messages = [
