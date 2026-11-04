@@ -75,7 +75,7 @@ function App() {
   const [aiStatus, setAiStatus] = useState<'checking' | 'online' | 'offline'>('checking')
   const [model, setModel] = useState('qwen2.5:3b')
   const [chatInput, setChatInput] = useState('')
-  const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([{ role: 'assistant', text: 'Welcome to NOVAverse. I am your local AI companion. Connect your local Ollama engine to begin a private conversation.' }])
+  const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([{ role: 'assistant', text: 'Welcome to NOVAverse. I run directly in your browser. The first launch downloads a small AI model; after that, it is cached on this device.' }])
   const [sending, setSending] = useState(false)
   const [showNotes, setShowNotes] = useState(false)
   const [note, setNote] = useState(() => localStorage.getItem('novaverse-note') || '')
@@ -142,7 +142,7 @@ function App() {
             <div className="local-card">
               <div className="local-card-top"><span className={`status-dot ${aiStatus}`}/> LOCAL AI ENGINE</div>
               <strong>{aiStatus === 'online' ? 'Connected' : aiStatus === 'checking' ? 'Checking...' : 'Not connected'}</strong>
-              <p>{aiStatus === 'online' ? 'Your private AI is ready.' : 'Run Ollama on your device to enable AI.'}</p>
+              <p>{aiStatus === 'online' ? 'Your private AI is ready.' : 'Browser-based AI · no installation or API key.'}</p>
               <button onClick={() => { setShowAI(true); void refreshAI() }}> {aiStatus === 'online' ? 'Open companion' : 'Connect AI'} <ArrowUpRight size={13}/></button>
             </div>
             <div className="sidebar-foot"><span>✦</span> Built for curious minds <span>v1.0</span></div>
@@ -192,13 +192,13 @@ function App() {
         {showAI && <motion.div className="drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAI(false)}>
           <motion.aside className="ai-drawer" initial={{ x: 460 }} animate={{ x: 0 }} exit={{ x: 460 }} transition={{ type: 'spring', damping: 28 }} onClick={e => e.stopPropagation()}>
             <div className="drawer-header"><div className="drawer-title-icon"><SparkleIcon size={19}/></div><div><strong>NOVA AI Companion</strong><span>LOCAL INTELLIGENCE · PRIVATE BY DESIGN</span></div><button className="icon-button" onClick={() => setShowAI(false)}><X size={18}/></button></div>
-            <div className="ai-connection"><span className={`status-dot ${aiStatus}`}/><div><strong>{aiStatus === 'online' ? 'Local AI connected' : aiStatus === 'checking' ? 'Checking local engine' : 'Local engine offline'}</strong><small>{aiStatus === 'online' ? 'Messages run on your device.' : 'Start Ollama and the local companion server.'}</small></div><button onClick={() => void refreshAI()}><Activity size={15}/></button></div>
+            <div className="ai-connection"><span className={`status-dot ${aiStatus}`}/><div><strong>{aiStatus === 'online' ? 'Local AI connected' : aiStatus === 'checking' ? 'Checking local engine' : 'Local engine offline'}</strong><small>{aiStatus === 'online' ? 'Messages run on your device.' : 'Runs in this browser using WebGPU. First launch downloads the model.'}</small></div><button onClick={() => void refreshAI()}><Activity size={15}/></button></div>
             <div className="chat-context"><span>ACTIVE WORLD</span><strong style={{ color: selected.color }}>{selected.icon} {selected.name}</strong></div>
             <div className="chat-messages">{messages.map((message, i) => <div key={i} className={`chat-message ${message.role}`}><span className="message-avatar">{message.role === 'assistant' ? '✳' : 'Y'}</span><div><small>{message.role === 'assistant' ? 'NOVA AI' : 'YOU'}</small><p>{message.text}</p></div></div>)}{sending && <div className="typing"><span/><span/><span/> NOVA is thinking...</div>}</div>
             <div className="quick-prompts"><button onClick={() => void sendMessage(selected.prompt)}>Explore this world <ArrowUpRight size={12}/></button><button onClick={() => void sendMessage('Explain this simply with an example.')}>Explain simply</button></div>
-            <div className="model-select"><Settings2 size={14}/><span>LOCAL MODEL</span><select value={model} onChange={e => setModel(e.target.value)}><option value="qwen2.5:3b">Qwen 2.5 · 3B</option><option value="llama3.2:3b">Llama 3.2 · 3B</option><option value="gemma3:4b">Gemma 3 · 4B</option><option value="mistral:7b">Mistral · 7B</option></select></div>
+            <div className="model-select"><Settings2 size={14}/><span>BROWSER MODEL</span><select value={model} onChange={e => setModel(e.target.value)}><option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen 2.5 · 0.5B (Lightweight)</option></select></div>
             <form className="chat-form" onSubmit={e => { e.preventDefault(); void sendMessage() }}><textarea value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder="Ask anything in your universe..." rows={2} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void sendMessage() } }}/><button type="submit" disabled={!chatInput.trim() || sending}><Send size={17}/></button></form>
-            <div className="privacy-note"><Activity size={12}/> Your prompt is sent only to your local Ollama service. No paid AI API.</div>
+            <div className="privacy-note"><Activity size={12}/> AI runs on your device in this browser. No Ollama, separate install, or paid API. The first model download requires internet.</div>
           </motion.aside>
         </motion.div>}
         {showNotes && <motion.div className="drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowNotes(false)}>
