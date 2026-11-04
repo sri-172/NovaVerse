@@ -73,7 +73,7 @@ function App() {
   const [query, setQuery] = useState('')
   const [showAI, setShowAI] = useState(false)
   const [aiStatus, setAiStatus] = useState<'checking' | 'online' | 'offline'>('checking')
-  const [model, setModel] = useState('qwen2.5:3b')
+  const [model, setModel] = useState('Qwen2.5-0.5B-Instruct-q4f16_1-MLC')
   const [chatInput, setChatInput] = useState('')
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([{ role: 'assistant', text: 'Welcome to NOVAverse. I run directly in your browser. The first launch downloads a small AI model; after that, it is cached on this device.' }])
   const [sending, setSending] = useState(false)
