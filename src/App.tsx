@@ -142,7 +142,7 @@ function App() {
             <div className="local-card">
               <div className="local-card-top"><span className={`status-dot ${aiStatus}`}/> LOCAL AI ENGINE</div>
               <strong>{aiStatus === 'online' ? 'Connected' : aiStatus === 'checking' ? 'Checking...' : 'Not connected'}</strong>
-              <p>{aiStatus === 'online' ? 'WebGPU is available on this device.' : 'Browser-based AI · no installation or API key.'}</p>
+              <p>{aiStatus === 'online' ? 'Browser-based CPU engine is available.' : 'Browser-based AI · no installation or API key.'}</p>
               <button onClick={() => { setShowAI(true); void refreshAI() }}> {aiStatus === 'online' ? 'Open companion' : 'Connect AI'} <ArrowUpRight size={13}/></button>
             </div>
             <div className="sidebar-foot"><span>✦</span> Built for curious minds <span>v1.0</span></div>
@@ -192,13 +192,13 @@ function App() {
         {showAI && <motion.div className="drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAI(false)}>
           <motion.aside className="ai-drawer" initial={{ x: 460 }} animate={{ x: 0 }} exit={{ x: 460 }} transition={{ type: 'spring', damping: 28 }} onClick={e => e.stopPropagation()}>
             <div className="drawer-header"><div className="drawer-title-icon"><SparkleIcon size={19}/></div><div><strong>NOVA AI Companion</strong><span>LOCAL INTELLIGENCE · PRIVATE BY DESIGN</span></div><button className="icon-button" onClick={() => setShowAI(false)}><X size={18}/></button></div>
-            <div className="ai-connection"><span className={`status-dot ${aiStatus}`}/><div><strong>{aiStatus === 'online' ? 'Browser AI ready' : aiStatus === 'checking' ? 'Checking local engine' : 'Browser AI unavailable'}</strong><small>{aiStatus === 'online' ? 'Messages run on your device.' : 'Runs in this browser using WebGPU. First launch downloads the model.'}</small></div><button onClick={() => void refreshAI()}><Activity size={15}/></button></div>
+            <div className="ai-connection"><span className={`status-dot ${aiStatus}`}/><div><strong>{aiStatus === 'online' ? 'Browser AI available' : aiStatus === 'checking' ? 'Checking local engine' : 'Browser AI unavailable'}</strong><small>{aiStatus === 'online' ? 'Messages run on your device.' : 'Runs on your CPU using WebAssembly. First launch downloads a small model.'}</small></div><button onClick={() => void refreshAI()}><Activity size={15}/></button></div>
             <div className="chat-context"><span>ACTIVE WORLD</span><strong style={{ color: selected.color }}>{selected.icon} {selected.name}</strong></div>
             <div className="chat-messages">{messages.map((message, i) => <div key={i} className={`chat-message ${message.role}`}><span className="message-avatar">{message.role === 'assistant' ? '✳' : 'Y'}</span><div><small>{message.role === 'assistant' ? 'NOVA AI' : 'YOU'}</small><p>{message.text}</p></div></div>)}{sending && <div className="typing"><span/><span/><span/> NOVA is thinking...</div>}</div>
             <div className="quick-prompts"><button onClick={() => void sendMessage(selected.prompt)}>Explore this world <ArrowUpRight size={12}/></button><button onClick={() => void sendMessage('Explain this simply with an example.')}>Explain simply</button></div>
-            <div className="model-select"><Settings2 size={14}/><span>BROWSER MODEL</span><select value={model} onChange={e => setModel(e.target.value)}><option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen 2.5 · 0.5B (Lightweight)</option></select></div>
+            <div className="model-select"><Settings2 size={14}/><span>BROWSER MODEL</span><select value={model} onChange={e => setModel(e.target.value)}><option value="SmolLM2-135M-Instruct">SmolLM2 · 135M (CPU)</option></select></div>
             <form className="chat-form" onSubmit={e => { e.preventDefault(); void sendMessage() }}><textarea value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder="Ask anything in your universe..." rows={2} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void sendMessage() } }}/><button type="submit" disabled={!chatInput.trim() || sending}><Send size={17}/></button></form>
-            <div className="privacy-note"><Activity size={12}/> AI runs on your device in this browser. No Ollama, separate install, or paid API. The first model download requires internet.</div>
+            <div className="privacy-note"><Activity size={12}/> AI runs on your device using CPU + WebAssembly. No WebGPU, Ollama, separate install, or paid API. First model download requires internet.</div>
           </motion.aside>
         </motion.div>}
         {showNotes && <motion.div className="drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowNotes(false)}>
