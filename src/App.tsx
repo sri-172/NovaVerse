@@ -8,7 +8,7 @@ import { worlds, type World } from './lib/worlds'
 import { askLocalAI, checkLocalAI } from './lib/ollama'
 
 function Planet({ world, selected, onSelect }: { world: World; selected: boolean; onSelect: () => void }) {
-  const mesh = useRef<Mesh>(null)
+  const mesh = useRef<Mesh | null>(null)
   useFrame((state, delta) => {
     if (mesh.current) {
       mesh.current.rotation.y += delta * (selected ? 0.34 : 0.13)
