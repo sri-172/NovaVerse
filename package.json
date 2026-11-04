@@ -15,7 +15,8 @@
     "motion": "^12.23.12",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "three": "^0.176.0"
+    "three": "^0.176.0",
+    "@mlc-ai/web-llm": "^0.2.87"
   },
   "devDependencies": {
     "@types/react": "^19.1.8",
